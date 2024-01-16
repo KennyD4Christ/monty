@@ -25,6 +25,55 @@ printf("%d\n", (*stack)->n);
 }
 
 /**
+ *  * pop - removes the top element of the stack
+ *   * @stack: double pointer to the head of the stack
+ *    * @line_number: line number in the Monty file
+ */
+void pop(stack_t **stack, unsigned int line_number)
+{
+stack_t *temp;
+/* Check if the stack is empty */
+if (*stack == NULL)
+{
+fprintf(stderr, "L%u: can't pop an empty stack\n", line_number);
+exit(EXIT_FAILURE);
+}
+/* Remove the top element of the stack */
+temp = *stack;
+*stack = (*stack)->next;
+if (*stack != NULL)
+(*stack)->prev = NULL;
+free(temp);
+}
+
+/**
+ *  * swap - swaps the top two elements of the stack
+ *   * @stack: double pointer to the head of the stack
+ *    * @line_number: line number in the Monty file
+ */
+void swap(stack_t **stack, unsigned int line_number)
+{
+stack_t *first;
+stack_t *second;
+/* Check if the stack contains less than two elements */
+if (*stack == NULL || (*stack)->next == NULL)
+{
+fprintf(stderr, "L%u: can't swap, stack too short\n", line_number);
+exit(EXIT_FAILURE);
+}
+/* Swap the top two elements of the stack */
+first = *stack;
+second = first->next;
+first->prev = second;
+first->next = second->next;
+second->prev = NULL;
+second->next = first;
+*stack = second;
+if (first->next)
+first->next->prev = first;
+}
+
+/**
  *  * main - entry point of the program
  *   * @argc: number of command-line arguments
  *    * @argv: array of command-line arguments
@@ -55,7 +104,6 @@ exit(EXIT_FAILURE);
 while ((read = getline(&line, &len, file)) != (ssize_t)-1)
 {
 line_number++;
-/* Execute commands based on the opcode */
 opcode = strtok(line, " \n\t");
 if (opcode)
 {
@@ -65,6 +113,10 @@ else if (strcmp(opcode, "pall") == 0)
 pall(stack, line_number);
 else if (strcmp(opcode, "pint") == 0)
 pint(&stack, line_number);
+else if (strcmp(opcode, "pop") == 0)
+pop(&stack, line_number);
+else if (strcmp(opcode, "swap") == 0)
+swap(&stack, line_number);
 }
 }
 free_stack(stack);
