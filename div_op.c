@@ -110,3 +110,31 @@ exit(EXIT_FAILURE);
 putchar(ascii_value);
 putchar('\n');
 }
+
+/**
+ *  * pstr - prints the string starting at the top
+ *  of the stack, followed by a new line
+ *   * @stack: double pointer to the head of the stack
+ *    * @line_number: line number in the Monty file
+ */
+void pstr(stack_t **stack, unsigned int line_number)
+{
+stack_t *current;
+(void)line_number;
+/* Check if the stack is empty */
+if (!*stack)
+{
+putchar('\n');
+return;
+}
+current = *stack;
+/* Traverse the stack and print characters until one of the
+ * stopping conditions is met */
+while (current && current->n != 0 && (current->n >= 0 && current->n <= 127))
+{
+putchar(current->n);
+current = current->next;
+}
+/* Print a new line after printing the string */
+putchar('\n');
+}
