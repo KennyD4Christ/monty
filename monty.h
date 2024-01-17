@@ -2,6 +2,25 @@
 #define MONTY_H
 
 /**
+ *  * struct bus_s - variables -args, file, line content
+ *   * @arg: value
+ *    * @file: pointer to monty file
+ *     * @content: line content
+ *      * @lifi: flag change stack <-> queue
+ *       * Description: carries values through the program
+ */
+typedef struct bus_s
+{
+char *arg;
+FILE *file;
+char *content;
+int lifi;
+} bus_t;
+
+/* Declare an external instance of the bus_t structure */
+extern bus_t bus;
+
+/**
  *  * struct stack_s - doubly linked list representation of a stack
  *   * @n: integer
  *    * @prev: points to the previous element of the stack
