@@ -32,3 +32,31 @@ first->next = NULL;
 last->next = first;
 first->prev = last;
 }
+
+/**
+ *  * rotr - rotates the stack to the bottom
+ *   * @stack: double pointer to the head of the stack
+ *    * @line_number: line number in the Monty file
+ */
+void rotr(stack_t **stack, unsigned int line_number)
+{
+stack_t *first;
+stack_t *last;
+(void)line_number;
+/* Check if the stack is empty or has only one element */
+if (!*stack || !(*stack)->next)
+return;
+first = *stack;
+/* Traverse to the last element of the stack */
+while (first->next)
+{
+last = first;
+first = first->next;
+}
+/* Update pointers to rotate the stack */
+last->next = NULL;
+first->prev = NULL;
+first->next = *stack;
+(*stack)->prev = first;
+*stack = first;
+}
