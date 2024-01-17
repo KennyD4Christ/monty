@@ -38,3 +38,22 @@ temp->prev = NULL;
 free(*stack);
 *stack = temp;
 }
+
+/**
+ *  * mul - multiplies the second top element of the stack with the top element
+ *   * @stack: double pointer to the head of the stack
+ *    * @line_number: line number in the Monty file
+ */
+void mul(stack_t **stack, unsigned int line_number)
+{
+/* Check if the stack contains less than two elements */
+if (*stack == NULL || (*stack)->next == NULL)
+{
+fprintf(stderr, "L%u: can't mul, stack too short\n", line_number);
+exit(EXIT_FAILURE);
+}
+/* Multiply the top two elements of the stack */
+(*stack)->next->n *= (*stack)->n;
+/* Remove the top element of the stack */
+pop(stack, line_number);
+}
