@@ -28,7 +28,7 @@ for (i = 0; arg[i] != '\0'; i++)
 {
 if (i == 0 && (arg[i] == '-' || arg[i] == '+'))
 continue;
-if (!isdigit(arg[i]))
+if (!isdigit((unsigned char)arg[i]))
 {
 fprintf(stderr, "L%u: usage: push integer\n", line_number);
 exit(EXIT_FAILURE);
