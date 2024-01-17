@@ -129,6 +129,8 @@ exit(EXIT_FAILURE);
 while ((read = getline(&line, &len, file)) != (ssize_t)-1)
 {
 line_number++;
+if (line[0] == '#')
+continue;
 opcode = strtok(line, " \n\t");
 if (opcode)
 {
