@@ -83,3 +83,30 @@ exit(EXIT_FAILURE);
 /* Remove the top element of the stack */
 pop(stack, line_number);
 }
+
+/**
+ *  * pchar - prints the char at the top of the stack, followed by a new line
+ *   * @stack: double pointer to the head of the stack
+ *    * @line_number: line number in the Monty file
+ */
+void pchar(stack_t **stack, unsigned int line_number)
+{
+int ascii_value;
+/* Check if the stack is empty */
+if (*stack == NULL)
+{
+fprintf(stderr, "L%u: can't pchar, stack empty\n", line_number);
+exit(EXIT_FAILURE);
+}
+/* Get the ASCII value from the top of the stack */
+ascii_value = (*stack)->n;
+/* Check if the value is in the ASCII table range */
+if (ascii_value < 0 || ascii_value > 127)
+{
+fprintf(stderr, "L%u: can't pchar, value out of range\n", line_number);
+exit(EXIT_FAILURE);
+}
+/* Print the character and a new line */
+putchar(ascii_value);
+putchar('\n');
+}
