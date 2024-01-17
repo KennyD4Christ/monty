@@ -7,8 +7,6 @@
 #include <ctype.h>
 #include "monty.h"
 
-/* Define the bus_t variable and initialize it */
-bus_t bus = {NULL, NULL, NULL, 0};
 
 /**
  *  * pint - prints the value at the top of the stack
@@ -21,9 +19,6 @@ void pint(stack_t **stack, unsigned int line_number)
 if (*stack == NULL)
 {
 fprintf(stderr, "L%u: can't pint, stack empty\n", line_number);
-fclose(bus.file);
-free(bus.content);
-free_stack(*stack);
 exit(EXIT_FAILURE);
 }
 /* Print the value at the top of the stack */
