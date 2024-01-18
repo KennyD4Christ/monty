@@ -6,7 +6,9 @@
 #include <unistd.h>
 #include <ctype.h>
 #include "monty.h"
+#include <limits.h>
 
+int mode = LIFO;
 
 /**
  *  * pint - prints the value at the top of the stack
@@ -41,9 +43,23 @@ exit(EXIT_FAILURE);
 }
 /* Remove the top element of the stack */
 temp = *stack;
+if (mode == LIFO)
+{
 *stack = (*stack)->next;
 if (*stack != NULL)
 (*stack)->prev = NULL;
+}
+else
+{
+/* Traverse to the end of the queue */
+while (temp->next != NULL)
+temp = temp->next;
+/* Update the top of the stack */
+if (temp->prev != NULL)
+temp->prev->next = NULL;
+else
+*stack = NULL;
+}
 free(temp);
 }
 
@@ -83,11 +99,19 @@ void add(stack_t **stack, unsigned int line_number)
 {
 stack_t *temp;
 /* Check if the stack contains less than two elements */
-if (*stack == NULL || (*stack)->next == NULL)
+if (!stack || !*stack || !((*stack)->next))
 {
 fprintf(stderr, "L%u: can't add, stack too short\n", line_number);
 exit(EXIT_FAILURE);
 }
+/* Check for integer overflow before adding */
+if ((*stack)->n > INT_MAX - (*stack)->next->n)
+{
+fprintf(stderr, "L%u: integer overflow\n", line_number);
+exit(EXIT_FAILURE);
+}
+if (mode == LIFO)
+{
 /* Add the top two elements of the stack */
 (*stack)->next->n += (*stack)->n;
 /* Remove the top element of the stack */
@@ -96,6 +120,24 @@ temp = *stack;
 if (*stack != NULL)
 (*stack)->prev = NULL;
 free(temp);
+}
+else if (mode == FIFO)
+{
+/* Add the top two elements of the stack */
+(*stack)->next->n += (*stack)->n;
+/* Remove the top element of the stack */
+temp = (*stack)->next;
+if (temp->next != NULL)
+{
+temp->next->prev = *stack;
+(*stack)->next = temp->next;
+}
+else
+{
+(*stack)->next = NULL;
+}
+free(temp);
+}
 }
 
 /**
@@ -111,8 +153,10 @@ char *line = NULL;
 size_t len = 0;
 ssize_t read;
 char *opcode;
+int i;
 unsigned int line_number = 0;
-stack_t *stack = NULL;
+stack_t *stack_ptr = NULL;
+(void)mode;
 /* Check the number of command-line arguments */
 if (argc != 2)
 {
@@ -129,45 +173,56 @@ exit(EXIT_FAILURE);
 while ((read = getline(&line, &len, file)) != (ssize_t)-1)
 {
 line_number++;
-if (line[0] == '#')
+if (line[0] == '#' || line[0] == '\n')
 continue;
 opcode = strtok(line, " \n\t");
 if (opcode)
 {
+for (i = 0; opcode[i]; i++)
+opcode[i] = tolower(opcode[i]);
 if (strcmp(opcode, "push") == 0)
-push(&stack, line_number);
+push(&stack_ptr, line_number, mode);
 else if (strcmp(opcode, "pall") == 0)
-pall(stack, line_number);
+pall(stack_ptr, line_number);
 else if (strcmp(opcode, "pint") == 0)
-pint(&stack, line_number);
+pint(&stack_ptr, line_number);
 else if (strcmp(opcode, "pop") == 0)
-pop(&stack, line_number);
+pop(&stack_ptr, line_number);
 else if (strcmp(opcode, "swap") == 0)
-swap(&stack, line_number);
+swap(&stack_ptr, line_number);
 else if (strcmp(opcode, "add") == 0)
-add(&stack, line_number);
+add(&stack_ptr, line_number);
 else if (strcmp(opcode, "nop") == 0)
-nop(&stack, line_number);
+nop(&stack_ptr, line_number);
 else if (strcmp(opcode, "sub") == 0)
-sub(&stack, line_number);
+sub(&stack_ptr, line_number);
 else if (strcmp(opcode, "div") == 0)
-div_op(&stack, line_number);
+div_op(&stack_ptr, line_number);
 else if (strcmp(opcode, "mul") == 0)
-mul(&stack, line_number);
+mul(&stack_ptr, line_number);
 else if (strcmp(opcode, "mod") == 0)
-mod(&stack, line_number);
+mod(&stack_ptr, line_number);
 else if (strcmp(opcode, "pchar") == 0)
-pchar(&stack, line_number);
+pchar(&stack_ptr, line_number);
 else if (strcmp(opcode, "pstr") == 0)
-pstr(&stack, line_number);
+pstr(&stack_ptr, line_number);
 else if (strcmp(opcode, "rotl") == 0)
-rotl(&stack, line_number);
+rotl(&stack_ptr, line_number);
 else if (strcmp(opcode, "rotr") == 0)
-rotr(&stack, line_number);
-}
-}
-free_stack(stack);
+rotr(&stack_ptr, line_number);
+else if (strcmp(opcode, "stack") == 0)
+stack(&stack_ptr, line_number);
+else if (strcmp(opcode, "queue") == 0)
+queue(&stack_ptr, line_number);
+else
+{
+fprintf(stderr, "L%u: unknown instruction %s\n", line_number, opcode);
+free_stack(stack_ptr);
 fclose(file);
 free(line);
+exit(EXIT_FAILURE);
+}
+}
+}
 return (0);
 }
