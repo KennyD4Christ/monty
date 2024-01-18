@@ -12,7 +12,7 @@
  *   * @stack: double pointer to the head of the stack
  *    * @line_number: line number in the Monty file
  */
-void push(stack_t **stack, unsigned int line_number, int mode)
+void push(stack_t **stack, unsigned int line_number)
 {
 stack_t *new_node;
 char *arg;
@@ -44,30 +44,12 @@ exit(EXIT_FAILURE);
 new_node->n = value;
 new_node->prev = NULL;
 new_node->next = NULL;
-if (mode == LIFO)
-{
 if (*stack)
 {
 new_node->next = *stack;
 (*stack)->prev = new_node;
 }
 *stack = new_node;
-}
-else if (mode == FIFO)
-{
-stack_t *temp = *stack;
-while (temp != NULL && temp->next != NULL)
-temp = temp->next;
-if (temp != NULL)
-{
-temp->next = new_node;
-new_node->prev = temp;
-}
-else
-{
-*stack = new_node;
-}
-}
 }
 
 /**
@@ -134,7 +116,7 @@ void pall(stack_t *stack, unsigned int line_number)
 if (!stack)
 {
 fprintf(stderr, "L%u: stack is empty\n", line_number);
-exit(EXIT_FAILURE);
+return;
 }
 while (stack)
 {

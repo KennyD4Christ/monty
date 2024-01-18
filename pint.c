@@ -99,19 +99,11 @@ void add(stack_t **stack, unsigned int line_number)
 {
 stack_t *temp;
 /* Check if the stack contains less than two elements */
-if (!stack || !*stack || !((*stack)->next))
+if (*stack == NULL || (*stack)->next == NULL)
 {
 fprintf(stderr, "L%u: can't add, stack too short\n", line_number);
 exit(EXIT_FAILURE);
 }
-/* Check for integer overflow before adding */
-if ((*stack)->n > INT_MAX - (*stack)->next->n)
-{
-fprintf(stderr, "L%u: integer overflow\n", line_number);
-exit(EXIT_FAILURE);
-}
-if (mode == LIFO)
-{
 /* Add the top two elements of the stack */
 (*stack)->next->n += (*stack)->n;
 /* Remove the top element of the stack */
@@ -120,24 +112,6 @@ temp = *stack;
 if (*stack != NULL)
 (*stack)->prev = NULL;
 free(temp);
-}
-else if (mode == FIFO)
-{
-/* Add the top two elements of the stack */
-(*stack)->next->n += (*stack)->n;
-/* Remove the top element of the stack */
-temp = (*stack)->next;
-if (temp->next != NULL)
-{
-temp->next->prev = *stack;
-(*stack)->next = temp->next;
-}
-else
-{
-(*stack)->next = NULL;
-}
-free(temp);
-}
 }
 
 /**
@@ -153,9 +127,8 @@ char *line = NULL;
 size_t len = 0;
 ssize_t read;
 char *opcode;
-int i;
 unsigned int line_number = 0;
-stack_t *stack_ptr = NULL;
+stack_t *stack = NULL;
 (void)mode;
 /* Check the number of command-line arguments */
 if (argc != 2)
@@ -173,56 +146,49 @@ exit(EXIT_FAILURE);
 while ((read = getline(&line, &len, file)) != (ssize_t)-1)
 {
 line_number++;
-if (line[0] == '#' || line[0] == '\n')
+if (line[0] == '#')
 continue;
 opcode = strtok(line, " \n\t");
 if (opcode)
 {
-for (i = 0; opcode[i]; i++)
-opcode[i] = tolower(opcode[i]);
 if (strcmp(opcode, "push") == 0)
-push(&stack_ptr, line_number, mode);
+push(&stack, line_number);
 else if (strcmp(opcode, "pall") == 0)
-pall(stack_ptr, line_number);
+pall(stack, line_number);
 else if (strcmp(opcode, "pint") == 0)
-pint(&stack_ptr, line_number);
+pint(&stack, line_number);
 else if (strcmp(opcode, "pop") == 0)
-pop(&stack_ptr, line_number);
+pop(&stack, line_number);
 else if (strcmp(opcode, "swap") == 0)
-swap(&stack_ptr, line_number);
+swap(&stack, line_number);
 else if (strcmp(opcode, "add") == 0)
-add(&stack_ptr, line_number);
+add(&stack, line_number);
 else if (strcmp(opcode, "nop") == 0)
-nop(&stack_ptr, line_number);
+nop(&stack, line_number);
 else if (strcmp(opcode, "sub") == 0)
-sub(&stack_ptr, line_number);
+sub(&stack, line_number);
 else if (strcmp(opcode, "div") == 0)
-div_op(&stack_ptr, line_number);
+div_op(&stack, line_number);
 else if (strcmp(opcode, "mul") == 0)
-mul(&stack_ptr, line_number);
+mul(&stack, line_number);
 else if (strcmp(opcode, "mod") == 0)
-mod(&stack_ptr, line_number);
+mod(&stack, line_number);
 else if (strcmp(opcode, "pchar") == 0)
-pchar(&stack_ptr, line_number);
+pchar(&stack, line_number);
 else if (strcmp(opcode, "pstr") == 0)
-pstr(&stack_ptr, line_number);
+pstr(&stack, line_number);
 else if (strcmp(opcode, "rotl") == 0)
-rotl(&stack_ptr, line_number);
+rotl(&stack, line_number);
 else if (strcmp(opcode, "rotr") == 0)
-rotr(&stack_ptr, line_number);
+rotr(&stack, line_number);
 else if (strcmp(opcode, "stack") == 0)
-stack(&stack_ptr, line_number);
+mode = LIFO;
 else if (strcmp(opcode, "queue") == 0)
-queue(&stack_ptr, line_number);
-else
-{
-fprintf(stderr, "L%u: unknown instruction %s\n", line_number, opcode);
-free_stack(stack_ptr);
+mode = FIFO;
+}
+}
+free_stack(stack);
 fclose(file);
 free(line);
-exit(EXIT_FAILURE);
-}
-}
-}
 return (0);
 }
